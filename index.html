@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Portal — Login</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="login-page">
+    <div class="login-card">
+
+      <img src="assets/logo.png" alt="Company Logo" class="company-logo" onerror="this.style.display='none'">
+
+      <h1>Employee Portal</h1>
+      <p class="subtitle">Sign in to view your leave &amp; attendance record</p>
+
+      <form id="loginForm">
+        <label for="empNumber">Employee Number</label>
+        <input type="text" id="empNumber" placeholder="e.g. EMP001" required autocomplete="off">
+
+        <label for="dobDay">Date of Birth</label>
+        <div class="dob-row">
+          <select id="dobDay" required>
+            <option value="" disabled selected>Day</option>
+          </select>
+          <select id="dobMonth" required>
+            <option value="" disabled selected>Month</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <select id="dobYear" required>
+            <option value="" disabled selected>Year</option>
+          </select>
+        </div>
+
+        <button type="submit" id="loginBtn">Sign In</button>
+
+        <p id="errorMsg" class="error-msg"></p>
+      </form>
+
+      <a href="admin.html" class="admin-link">HR / Admin login →</a>
+
+    </div>
+  </div>
+
+  <!-- Supabase's connection library — lets our JS talk to the database -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Our own settings file: holds the project URL + public key (see SETUP-INSTRUCTIONS.md, Section 3) -->
+  <script src="js/supabase-config.js"></script>
+  <script src="js/login.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Portal — Dashboard</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <img src="assets/logo.png" alt="Company Logo" class="topbar-logo" onerror="this.style.display='none'">
+    <span class="topbar-title">Employee Portal</span>
+    <button id="logoutBtn" class="logout-btn">Sign out</button>
+  </header>
+
+  <main class="dashboard-wrap">
+
+    <div id="loadingState" class="state-msg">Loading your record…</div>
+
+    <div id="dashboardContent" class="hidden">
+
+      <div class="welcome-card">
+        <h1 id="empName">—</h1>
+        <p id="empMeta">—</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Total Working Days</span>
+          <span class="stat-value" id="statWorkingDays">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Leaves Taken (YTD)</span>
+          <span class="stat-value" id="statLeaves">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Permissions Taken (YTD)</span>
+          <span class="stat-value" id="statPermissions">—</span>
+        </div>
+        <div class="stat-card highlight">
+          <span class="stat-label">Leave Balance Remaining</span>
+          <span class="stat-value" id="statBalance">—</span>
+        </div>
+      </div>
+
+      <h2 class="section-heading">Month-by-Month Record</h2>
+      <div class="table-scroll">
+        <table class="month-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Leave</th>
+              <th>Permission</th>
+            </tr>
+          </thead>
+          <tbody id="monthTableBody">
+            <!-- Rows inserted by js/dashboard.js -->
+          </tbody>
+          <tfoot>
+            <tr class="totals-row">
+              <td>Total Number of Leave</td>
+              <td id="footerTotalLeave">—</td>
+              <td></td>
+            </tr>
+            <tr class="totals-row">
+              <td>Total Number of Permission</td>
+              <td></td>
+              <td id="footerTotalPermission">—</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <p class="last-updated" id="lastUpdated"></p>
+
+    </div>
+
+    <div id="errorState" class="state-msg error hidden">
+      Could not load your record. Please sign in again.
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/month-utils.js"></script>
+  <script src="js/dashboard.js"></script>
+
+</body>
+</html>

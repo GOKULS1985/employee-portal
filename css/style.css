@@ -1,0 +1,608 @@
+/* ============================================================
+   EMPLOYEE PORTAL — STYLESHEET
+   Design intent: this is a tool HR opens every day and 300
+   people check occasionally. Calm, legible, and fast to scan
+   beats decorative — so the palette is restrained and the
+   numbers (leave counts, working days) get the visual weight.
+   ============================================================ */
+
+:root {
+  /* Color tokens */
+  --ink: #1c2530;           /* primary text */
+  --ink-soft: #5b6573;       /* secondary text */
+  --paper: #f6f5f1;          /* page background — warm off-white, not stark white */
+  --surface: #ffffff;        /* card backgrounds */
+  --line: #e3e1da;           /* hairline borders */
+  --teal: #2f6f64;           /* primary accent — used for actions & highlights */
+  --teal-deep: #234f47;      /* hover/active state of accent */
+  --amber: #c17a37;          /* used sparingly for the "balance remaining" highlight */
+  --error: #b3432f;
+
+  /* Type scale */
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.hidden { display: none !important; }
+
+/* ============== LOGIN PAGES ============== */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 40px 36px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(28, 37, 48, 0.06);
+}
+
+.company-logo {
+  max-width: 88px;
+  max-height: 88px;
+  margin-bottom: 20px;
+  object-fit: contain;
+}
+
+.login-card h1 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  margin: 0 0 28px;
+}
+
+#loginForm, #adminLoginForm {
+  text-align: left;
+}
+
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin: 16px 0 6px;
+}
+
+label:first-of-type { margin-top: 0; }
+
+input[type="text"],
+input[type="date"],
+input[type="password"],
+input[type="number"] {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+input:focus {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+  border-color: var(--teal);
+}
+
+.dob-row {
+  display: grid;
+  grid-template-columns: 0.8fr 1.3fr 1fr;
+  gap: 8px;
+}
+
+.dob-row select {
+  width: 100%;
+  padding: 11px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.dob-row select:focus {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+  border-color: var(--teal);
+}
+
+button[type="submit"], .primary-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 12px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+button[type="submit"]:hover, .primary-btn:hover { background: var(--teal-deep); }
+button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.error-msg {
+  color: var(--error);
+  font-size: 0.85rem;
+  margin: 14px 0 0;
+  min-height: 1em;
+  text-align: center;
+}
+
+.admin-link {
+  display: block;
+  margin-top: 22px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.admin-link:hover { color: var(--teal); }
+
+/* ============== TOPBAR (dashboard + admin) ============== */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar-logo { height: 32px; width: 32px; object-fit: contain; }
+
+.topbar-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.logout-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.logout-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+/* ============== EMPLOYEE DASHBOARD ============== */
+
+.dashboard-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+}
+
+.state-msg {
+  text-align: center;
+  color: var(--ink-soft);
+  padding: 60px 20px;
+  font-size: 0.95rem;
+}
+
+.state-msg.error { color: var(--error); }
+
+.welcome-card { margin-bottom: 28px; }
+
+.welcome-card h1 {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  margin: 0 0 4px;
+}
+
+.welcome-card p { color: var(--ink-soft); margin: 0; font-size: 0.92rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-card.highlight {
+  background: #fbf3e9;
+  border-color: #ecd9bd;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.stat-card.highlight .stat-value { color: var(--amber); }
+
+.last-updated {
+  margin-top: 22px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.section-heading {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 32px 0 12px;
+}
+
+.month-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+
+.month-table th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.month-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.month-table tbody tr:last-child td { border-bottom: 1px solid var(--line); }
+
+.month-table tfoot .totals-row td {
+  font-weight: 700;
+  background: #fbf3e9;
+  border-bottom: none;
+  border-top: 2px solid var(--amber);
+}
+
+.month-table tfoot .totals-row:first-child td { padding-top: 12px; }
+.month-table tfoot .totals-row:last-child td { padding-bottom: 12px; }
+
+/* ============== ADMIN PANEL ============== */
+
+.admin-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+.admin-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+#searchBox {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--surface);
+}
+
+.admin-toolbar .primary-btn { width: auto; margin-top: 0; padding: 10px 18px; white-space: nowrap; }
+
+.secondary-btn {
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.secondary-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+.danger-btn {
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--error);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--error);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.danger-btn:hover:not(:disabled) { background: var(--error); color: #fff; }
+.danger-btn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--line); color: var(--ink-soft); }
+
+.csv-help {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+.csv-help code {
+  background: var(--paper);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+.checkbox-col { width: 36px; }
+td.checkbox-col, th.checkbox-col { white-space: nowrap; text-align: center; }
+
+tr.row-selected { background: #fbf3e9; }
+
+/* ============== CONFIRMATION MODAL ============== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 37, 48, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
+}
+
+.modal-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 28px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.modal-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0 0 10px;
+}
+
+.modal-card p { font-size: 0.9rem; color: var(--ink); margin: 0 0 6px; }
+
+.modal-warning { color: var(--error); font-size: 0.82rem; margin-bottom: 20px; }
+
+.modal-actions { display: flex; gap: 10px; }
+.modal-actions button { flex: 1; margin-top: 0; }
+
+.save-status {
+  font-size: 0.85rem;
+  color: var(--teal);
+  min-height: 1.2em;
+  margin: 0 0 10px;
+}
+
+.save-status.error { color: var(--error); }
+
+.table-scroll {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+
+th {
+  text-align: left;
+  padding: 12px 14px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+tr:last-child td { border-bottom: none; }
+
+td input {
+  width: 100%;
+  min-width: 70px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.86rem;
+  background: transparent;
+  font-family: var(--font-body);
+}
+
+td input:hover { border-color: var(--line); }
+td input:focus { border-color: var(--teal); background: var(--surface); outline: none; }
+
+.row-actions { display: flex; gap: 8px; }
+
+.icon-btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+
+.icon-btn.save { color: var(--teal); border-color: var(--teal); }
+.icon-btn.save:hover { background: var(--teal); color: #fff; }
+.icon-btn.delete { color: var(--error); }
+.icon-btn.delete:hover { background: var(--error); color: #fff; }
+.icon-btn.months { color: var(--amber); border-color: var(--amber); }
+.icon-btn.months:hover { background: var(--amber); color: #fff; }
+
+.readonly-total {
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* ============== MONTH EDIT PANEL ============== */
+
+.month-edit-card { max-width: 480px; }
+
+.modal-subtitle {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin: -4px 0 16px;
+}
+
+.month-edit-scroll {
+  max-height: 360px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.month-edit-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+
+.month-edit-table th {
+  position: sticky;
+  top: 0;
+  text-align: left;
+  padding: 9px 12px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.month-edit-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.month-edit-table tr:last-child td { border-bottom: none; }
+
+.month-edit-table input {
+  width: 70px;
+  padding: 6px 8px;
+  font-size: 0.86rem;
+}
+
+.month-edit-table input:disabled {
+  background: var(--paper);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+.future-tag {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.month-edit-hint {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin: 12px 0 0;
+}
+
+/* ============== RESPONSIVE ============== */
+
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .login-card { padding: 32px 24px; }
+  .admin-toolbar { flex-direction: column; }
+  .admin-toolbar > * { width: 100%; }
+
+  /* The DOB day/month/year row stays three columns even on mobile —
+     stacking it vertically would make a routine login take far more
+     scrolling/tapping than necessary. The columns just get tighter. */
+  .dob-row { gap: 5px; }
+  .dob-row select { padding: 11px 4px; font-size: 0.82rem; }
+
+  /* Row action buttons (Save / Edit Months / Delete) stack vertically
+     on mobile rather than staying side-by-side and getting cramped
+     to the point of mis-taps — a real risk for a Delete button. */
+  .row-actions { flex-direction: column; gap: 6px; }
+  .icon-btn { width: 100%; }
+
+  /* The month-edit modal becomes closer to full-screen on mobile —
+     a fixed 480px-wide centered card would overflow a phone screen
+     and force awkward horizontal scrolling on top of the page's own
+     scrolling, which is exactly the bad experience to avoid here. */
+  .month-edit-card { max-width: 100%; padding: 20px; }
+  .month-edit-scroll { max-height: 50vh; }
+  .month-edit-table input { width: 56px; padding: 6px 4px; }
+
+  .modal-card { padding: 22px; }
+  .modal-actions { flex-direction: column; }
+}
+
+/* ============== ACCESSIBILITY: visible focus ring everywhere ============== */
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
