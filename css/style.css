@@ -57,8 +57,8 @@ body {
 }
 
 .company-logo {
-  max-width: 88px;
-  max-height: 88px;
+  max-width: 100px;
+  max-height: 100px;
   margin-bottom: 20px;
   object-fit: contain;
 }
