@@ -57,7 +57,7 @@ body {
 }
 
 .company-logo {
-  max-width: 100px;
+  max-width: 1000px;
   max-height: 100px;
   margin-bottom: 20px;
   object-fit: contain;
@@ -179,7 +179,7 @@ button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
   border-bottom: 1px solid var(--line);
 }
 
-.topbar-logo { height: 32px; width: 32px; object-fit: contain; }
+.topbar-logo { height: 70px; width: 150px; object-fit: contain; }
 
 .topbar-title {
   font-family: var(--font-display);
