@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Portal — Admin</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============== ADMIN LOGIN VIEW ============== -->
+  <div id="adminLoginView" class="login-page">
+    <div class="login-card">
+      <img src="assets/logo.png" alt="Company Logo" class="company-logo" onerror="this.style.display='none'">
+      <h1>HR / Admin Login</h1>
+      <p class="subtitle">Manage employee leave &amp; attendance records</p>
+
+      <form id="adminLoginForm">
+        <label for="adminUser">Username</label>
+        <input type="text" id="adminUser" required autocomplete="off">
+
+        <label for="adminPass">Password</label>
+        <input type="password" id="adminPass" required>
+
+        <button type="submit">Sign In</button>
+        <p id="adminErrorMsg" class="error-msg"></p>
+      </form>
+
+      <a href="index.html" class="admin-link">← Employee login</a>
+    </div>
+  </div>
+
+  <!-- ============== ADMIN DASHBOARD VIEW (hidden until logged in) ============== -->
+  <div id="adminPanelView" class="hidden">
+
+    <header class="topbar">
+      <img src="assets/logo.png" alt="Company Logo" class="topbar-logo" onerror="this.style.display='none'">
+      <span class="topbar-title">HR Admin Panel</span>
+      <button id="adminLogoutBtn" class="logout-btn">Sign out</button>
+    </header>
+
+    <main class="admin-wrap">
+
+      <div class="admin-toolbar">
+        <input type="text" id="searchBox" placeholder="Search by name or employee number…">
+        <button id="addEmployeeBtn" class="primary-btn">+ Add Employee</button>
+        <button id="uploadCsvBtn" class="secondary-btn">Upload CSV</button>
+        <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+        <button id="deleteSelectedBtn" class="danger-btn" disabled>Delete Selected (0)</button>
+      </div>
+
+      <p id="csvHelp" class="csv-help">
+        CSV columns, in order, with a header row: <code>employee_number, date_of_birth, full_name, department, total_working_days, leave_balance, leave_jan, permission_jan, leave_feb, permission_feb, leave_mar, permission_mar, leave_apr, permission_apr, leave_may, permission_may, leave_jun, permission_jun, leave_jul, permission_jul, leave_aug, permission_aug, leave_sep, permission_sep, leave_oct, permission_oct, leave_nov, permission_nov, leave_dec, permission_dec</code>.
+        Date of birth must be <code>YYYY-MM-DD</code>. Leave a monthly cell blank for "not entered yet" — future months display as "—" automatically; blank past months count as 0. If an employee_number already exists, that row updates the existing employee instead of creating a duplicate.
+      </p>
+
+      <p id="saveStatus" class="save-status"></p>
+
+      <div class="table-scroll">
+        <table id="employeeTable">
+          <thead>
+            <tr>
+              <th class="checkbox-col"><input type="checkbox" id="selectAllCheckbox"></th>
+              <th>Emp Number</th>
+              <th>Full Name</th>
+              <th>Department</th>
+              <th>Date of Birth</th>
+              <th>Working Days</th>
+              <th>Leave Balance</th>
+              <th>Leaves (YTD)</th>
+              <th>Permissions (YTD)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employeeTableBody">
+            <!-- Rows are inserted here by js/admin.js -->
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ============== MONTH-BY-MONTH EDIT PANEL (one employee at a time) ============== -->
+  <div id="monthEditModal" class="modal-overlay hidden">
+    <div class="modal-card month-edit-card">
+      <h2 id="monthEditTitle">Edit monthly record</h2>
+      <p class="modal-subtitle" id="monthEditSubtitle">—</p>
+
+      <div class="month-edit-scroll">
+        <table class="month-edit-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Leave</th>
+              <th>Permission</th>
+            </tr>
+          </thead>
+          <tbody id="monthEditTableBody">
+            <!-- 12 rows inserted by js/admin.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <p class="month-edit-hint">Leave a box blank for "not entered." Future months are locked, since they haven't happened yet.</p>
+
+      <div class="modal-actions">
+        <button id="monthEditCancelBtn" class="secondary-btn">Cancel</button>
+        <button id="monthEditSaveBtn" class="primary-btn">Save monthly record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== DELETE CONFIRMATION MODAL ============== -->
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2>Confirm deletion</h2>
+      <p id="deleteModalText">Are you sure?</p>
+      <p class="modal-warning">This cannot be undone. Their leave history will be permanently removed.</p>
+      <div class="modal-actions">
+        <button id="deleteCancelBtn" class="secondary-btn">Cancel</button>
+        <button id="deleteConfirmBtn" class="danger-btn">Yes, delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/month-utils.js"></script>
+  <script src="js/admin.js"></script>
+
+</body>
+</html>
