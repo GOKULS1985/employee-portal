@@ -131,8 +131,8 @@ function renderTable(employees) {
       <td><input type="text" value="${emp.full_name}" data-field="full_name"></td>
       <td><input type="text" value="${emp.department || ""}" data-field="department"></td>
       <td><input type="date" value="${emp.date_of_birth}" data-field="date_of_birth"></td>
-      <td><input type="number" value="${emp.total_working_days}" data-field="total_working_days"></td>
-      <td><input type="number" value="${emp.leave_balance}" data-field="leave_balance"></td>
+      <td><input type="number" step="0.5" min="0" value="${emp.total_working_days}" data-field="total_working_days"></td>
+      <td><input type="number" step="0.5" min="0" value="${emp.leave_balance}" data-field="leave_balance"></td>
       <td class="readonly-total">${totalLeave}</td>
       <td class="readonly-total">${totalPermission}</td>
       <td class="row-actions">
@@ -230,16 +230,39 @@ tableBody.addEventListener("click", async (event) => {
 });
 
 async function saveRow(row, employeeId) {
-  // Gather every input's current value in this row into one object,
-  // e.g. { employee_number: "EMP001", full_name: "Priya Sharma", ... }
   const inputs = row.querySelectorAll("input");
   const updatedData = {};
+  let validationError = null;
+
   inputs.forEach((input) => {
     const field = input.dataset.field;
-    // number fields need to be sent as actual numbers, not text
     const isNumberField = input.type === "number";
-    updatedData[field] = isNumberField ? Number(input.value) : input.value;
+
+    if (isNumberField) {
+      const raw = input.value.trim();
+      const parsed = parseFloat(raw);
+
+      // parseFloat("2.5") → 2.5 ✓
+      // parseFloat("0.5") → 0.5 ✓
+      // parseFloat("abc") → NaN → caught below
+      // parseFloat("")    → NaN → caught below (empty number field)
+      if (Number.isNaN(parsed)) {
+        validationError = `"${raw || "(empty)"}" is not a valid number in the ${field.replace(/_/g, " ")} field.`;
+        return;
+      }
+
+      updatedData[field] = parsed;
+    } else {
+      updatedData[field] = input.value;
+    }
   });
+
+  if (validationError) {
+    saveStatus.textContent = validationError;
+    saveStatus.classList.add("error");
+    return;
+  }
+
   updatedData.last_updated = new Date().toISOString();
 
   saveStatus.textContent = "Saving…";
@@ -382,6 +405,7 @@ function openMonthEditModal(employeeId) {
         <input
           type="number"
           min="0"
+          step="0.5"
           class="month-input"
           data-month="${month.key}"
           data-category="leave"
@@ -394,6 +418,7 @@ function openMonthEditModal(employeeId) {
         <input
           type="number"
           min="0"
+          step="0.5"
           class="month-input"
           data-month="${month.key}"
           data-category="permission"
@@ -434,12 +459,31 @@ monthEditSaveBtn.addEventListener("click", async () => {
   // unentered months for HR's attention — stays possible later.
   const updatedData = {};
   const inputs = monthEditTableBody.querySelectorAll(".month-input:not(:disabled)");
+  let monthValidationError = null;
 
   inputs.forEach((input) => {
     const columnName = `${input.dataset.category}_${input.dataset.month}`;
     const value = input.value.trim();
-    updatedData[columnName] = value === "" ? null : Number(value);
+
+    if (value === "") {
+      updatedData[columnName] = null;
+      return;
+    }
+
+    const parsed = parseFloat(value);
+    if (Number.isNaN(parsed)) {
+      monthValidationError = `"${value}" is not a valid number in the ${columnName.replace(/_/g, " ")} field.`;
+      return;
+    }
+
+    updatedData[columnName] = parsed;
   });
+
+  if (monthValidationError) {
+    saveStatus.textContent = monthValidationError;
+    saveStatus.classList.add("error");
+    return;
+  }
 
   updatedData.last_updated = new Date().toISOString();
 
