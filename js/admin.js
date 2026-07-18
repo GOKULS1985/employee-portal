@@ -132,7 +132,8 @@ function renderTable(employees) {
       <td><input type="text" value="${emp.department || ""}" data-field="department"></td>
       <td><input type="date" value="${emp.date_of_birth}" data-field="date_of_birth"></td>
       <td><input type="number" step="0.5" min="0" value="${emp.total_working_days}" data-field="total_working_days"></td>
-      <td><input type="number" step="0.5" min="0" value="${emp.leave_balance}" data-field="leave_balance"></td>
+      <td><input type="text" value="${emp.pf_number || ""}" data-field="pf_number" placeholder="PF number"></td>
+      <td><input type="text" value="${emp.esi_number || ""}" data-field="esi_number" placeholder="ESI number"></td>
       <td class="readonly-total">${totalLeave}</td>
       <td class="readonly-total">${totalPermission}</td>
       <td class="row-actions">

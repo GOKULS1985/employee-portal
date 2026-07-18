@@ -57,7 +57,11 @@ async function loadDashboard() {
   document.getElementById("statWorkingDays").textContent = data.total_working_days;
   document.getElementById("statLeaves").textContent = totalLeave;
   document.getElementById("statPermissions").textContent = totalPermission;
-  document.getElementById("statBalance").textContent = data.leave_balance;
+
+  // PF and ESI are reference numbers entered by HR — show "Not assigned"
+  // if HR hasn't entered them yet rather than a confusing blank or dash.
+  document.getElementById("statPf").textContent = data.pf_number || "Not assigned";
+  document.getElementById("statEsi").textContent = data.esi_number || "Not assigned";
 
   // Build the month-by-month table: one row per month, each cell
   // resolved through resolveDisplayValue so future months correctly
@@ -95,20 +99,20 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 });
 
 // ============================================================
-// AUTO-LOGOUT AFTER 1.5 MINUTES OF INACTIVITY
+// AUTO-LOGOUT AFTER 1 MINUTE OF INACTIVITY
 // ============================================================
 // How this works:
-//   - A 90-second countdown starts as soon as the dashboard loads.
+//   - A 60-second countdown starts as soon as the dashboard loads.
 //   - Any mouse movement, click, keypress, or screen touch resets
-//     the countdown back to 90 seconds — so someone actively
+//     the countdown back to 60 seconds — so someone actively
 //     reading their dashboard won't be interrupted mid-way.
-//   - If 90 full seconds pass with zero activity, the session is
+//   - If 60 full seconds pass with zero activity, the session is
 //     cleared and the employee is sent back to the login page.
 //   - A visible countdown appears in the last 10 seconds so the
 //     employee isn't surprised by a sudden redirect.
 // ============================================================
 
-const TIMEOUT_SECONDS = 90;
+const TIMEOUT_SECONDS = 60;
 let secondsRemaining = TIMEOUT_SECONDS;
 let countdownInterval = null;
 
