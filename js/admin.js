@@ -688,6 +688,8 @@ function parseCsv(text) {
     "department",
     "total_working_days",
     "leave_balance",
+    "pf_number",
+    "esi_number",
     ...monthlyColumns,
   ];
 
@@ -776,6 +778,8 @@ function parseCsv(text) {
     if ("date_of_birth" in rawRow) finalRow.date_of_birth = rawRow.date_of_birth;
     if ("full_name" in rawRow) finalRow.full_name = rawRow.full_name;
     if ("department" in rawRow) finalRow.department = rawRow.department || null;
+    if ("pf_number" in rawRow) finalRow.pf_number = rawRow.pf_number || null;
+    if ("esi_number" in rawRow) finalRow.esi_number = rawRow.esi_number || null;
     numericColumns.forEach((col) => {
       if (col in numericValues) finalRow[col] = numericValues[col];
     });
