@@ -693,7 +693,21 @@ function parseCsv(text) {
     ...monthlyColumns,
   ];
 
-  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  // Some CSV exports omit permission_dec (the last column) entirely,
+  // ending at leave_dec. We add it back into the header as blank so
+  // every row's column count still matches — otherwise every row gets
+  // flagged as having "wrong number of columns" and is skipped.
+  let parsedHeader = lines[0].split(",").map((h) => h.trim().toLowerCase().replace(/\r/g, ""));
+  if (!parsedHeader.includes("permission_dec") && parsedHeader.includes("leave_dec")) {
+    parsedHeader.push("permission_dec");
+    // Pad every data row with a blank value at the end so column
+    // counts remain consistent after we extended the header.
+    for (let i = 1; i < lines.length; i++) {
+      lines[i] = lines[i] + ",";
+    }
+  }
+
+  const header = parsedHeader; // already parsed and normalised above
   const rows = [];
   const errors = [];
 
@@ -726,17 +740,34 @@ function parseCsv(text) {
       continue;
     }
 
-    // date_of_birth is required ONLY if this CSV includes that
-    // column at all (a monthly-only update CSV may reasonably omit
-    // it, since it's not changing). If the column IS present, it
-    // must be valid — a malformed DOB silently breaking someone's
-    // login later is exactly the kind of error worth catching now.
-    if ("date_of_birth" in rawRow) {
-      const dobPattern = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dobPattern.test(rawRow.date_of_birth)) {
-        errors.push(`Line ${lineNumber} (${rawRow.employee_number}): date_of_birth "${rawRow.date_of_birth}" is not in YYYY-MM-DD format.`);
+    // date_of_birth handling:
+    // - Blank/missing DOB is allowed (employee may not have provided it yet).
+    // - Accepts BOTH formats:
+    //     YYYY-MM-DD (the database's native format)
+    //     M/D/YYYY or MM/DD/YYYY (how Excel/Sheets typically exports dates)
+    //   If the M/D/YYYY format is detected, it's automatically converted
+    //   to YYYY-MM-DD before being sent to the database.
+    if ("date_of_birth" in rawRow && rawRow.date_of_birth.trim() !== "") {
+      const dob = rawRow.date_of_birth.trim();
+      const isoPattern = /^\d{4}-\d{2}-\d{2}$/;
+      const usPattern = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+
+      if (isoPattern.test(dob)) {
+        // Already in correct format — leave as-is
+      } else if (usPattern.test(dob)) {
+        // Convert M/D/YYYY → YYYY-MM-DD
+        const parts = dob.split("/");
+        const month = parts[0].padStart(2, "0");
+        const day = parts[1].padStart(2, "0");
+        const year = parts[2];
+        rawRow.date_of_birth = `${year}-${month}-${day}`;
+      } else {
+        errors.push(`Line ${lineNumber} (${rawRow.employee_number}): date_of_birth "${dob}" is not a recognised date format. Use YYYY-MM-DD or M/D/YYYY.`);
         continue;
       }
+    } else if ("date_of_birth" in rawRow) {
+      // Blank DOB — set to null (employee can log in once HR updates it)
+      rawRow.date_of_birth = null;
     }
 
     // Every numeric-style column (working days, leave balance, and
@@ -775,7 +806,9 @@ function parseCsv(text) {
     // total_working_days, etc. untouched on existing employees
     // rather than overwriting them with blanks.
     const finalRow = { employee_number: rawRow.employee_number };
-    if ("date_of_birth" in rawRow) finalRow.date_of_birth = rawRow.date_of_birth;
+    if ("date_of_birth" in rawRow && rawRow.date_of_birth !== null) {
+      finalRow.date_of_birth = rawRow.date_of_birth;
+    }
     if ("full_name" in rawRow) finalRow.full_name = rawRow.full_name;
     if ("department" in rawRow) finalRow.department = rawRow.department || null;
     if ("pf_number" in rawRow) finalRow.pf_number = rawRow.pf_number || null;

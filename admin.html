@@ -51,7 +51,7 @@
 
       <p id="csvHelp" class="csv-help">
         CSV columns, in order, with a header row: <code>employee_number, date_of_birth, full_name, department, total_working_days, leave_balance, leave_jan, permission_jan, leave_feb, permission_feb, leave_mar, permission_mar, leave_apr, permission_apr, leave_may, permission_may, leave_jun, permission_jun, leave_jul, permission_jul, leave_aug, permission_aug, leave_sep, permission_sep, leave_oct, permission_oct, leave_nov, permission_nov, leave_dec, permission_dec</code>.
-        Date of birth must be <code>YYYY-MM-DD</code>. Leave a monthly cell blank for "not entered yet" — future months display as "—" automatically; blank past months count as 0. If an employee_number already exists, that row updates the existing employee instead of creating a duplicate.
+        Date of birth accepts <code>YYYY-MM-DD</code> or <code>M/D/YYYY</code> (Excel default) — both work. Blank date of birth is also allowed. Leave a monthly cell blank for "not entered yet" — future months display as "—" automatically; blank past months count as 0. If an employee_number already exists, that row updates the existing employee instead of creating a duplicate.
       </p>
 
       <p id="saveStatus" class="save-status"></p>
@@ -68,7 +68,8 @@
               <th>Working Days</th>
               <th>PF Number</th>
               <th>ESI Number</th>
-              <th>Permissions</th>
+              <th>Leaves (YTD)</th>
+              <th>Permissions (YTD)</th>
               <th>Actions</th>
             </tr>
           </thead>
