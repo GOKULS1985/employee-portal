@@ -440,27 +440,46 @@ csvFileInput.addEventListener("change", async (event) => {
     return;
   }
 
-  // Only block NEW employees (not in DB yet) that are missing full_name.
-  // DOB is no longer required — some employees don't have it.
+  // Filter out any rows that would fail at the database level (new employee
+  // with no full_name). Instead of stopping the whole upload, we skip just
+  // those rows, add them to the skipped list, and upload everything else.
+  // This matches the original intended behaviour: skip bad rows with a clear
+  // message, upload all valid rows successfully in the same operation.
   const existingNumbers = new Set(allEmployees.map((emp) => emp.employee_number));
-  const invalidNewRows = rows.filter(
-    (row) => !existingNumbers.has(row.employee_number) && !row.full_name
-  );
+  const validRows = [];
+  const skippedRows = [];
 
-  if (invalidNewRows.length > 0) {
-    const numbers = invalidNewRows.map((r) => r.employee_number).join(", ");
-    saveStatus.textContent = "Upload stopped — new employees must have a full_name.";
+  rows.forEach((row) => {
+    const isNew = !existingNumbers.has(row.employee_number);
+    if (isNew && !row.full_name) {
+      // New employee with no name — cannot be inserted
+      skippedRows.push(`${row.employee_number}: new employee missing full_name — skipped. Add their name and re-upload.`);
+    } else if (isNew && !row.date_of_birth) {
+      // New employee with no DOB — database requires it for new inserts,
+      // and without it the employee can never log in. Skip and report.
+      // Existing employees can have blank DOB updated later via the Edit button.
+      skippedRows.push(`${row.employee_number}: new employee missing date_of_birth — skipped. Add their DOB and re-upload.`);
+    } else {
+      validRows.push(row);
+    }
+  });
+
+  // Combine parser errors + skipped-row messages into one list shown at end
+  const allSkipped = [...parseErrors, ...skippedRows];
+
+  if (validRows.length === 0) {
+    saveStatus.textContent = "No valid rows to upload.";
     saveStatus.classList.add("error");
-    alert(`These are new employees but have no full_name in the CSV:\n\n${numbers}\n\nPlease add their names and re-upload.`);
+    if (allSkipped.length > 0) alert("All rows were skipped:\n\n" + allSkipped.join("\n"));
     return;
   }
 
-  saveStatus.textContent = `Uploading ${rows.length} row${rows.length === 1 ? "" : "s"}…`;
+  saveStatus.textContent = `Uploading ${validRows.length} row${validRows.length === 1 ? "" : "s"}…`;
   saveStatus.classList.remove("error");
 
   const { data, error } = await supabaseClient
     .from("employees")
-    .upsert(rows, { onConflict: "employee_number" })
+    .upsert(validRows, { onConflict: "employee_number" })
     .select();
 
   if (error) {
@@ -472,9 +491,9 @@ csvFileInput.addEventListener("change", async (event) => {
   await loadAllEmployees();
 
   let statusMessage = `Uploaded successfully: ${data.length} employee${data.length === 1 ? "" : "s"} added or updated.`;
-  if (parseErrors.length > 0) statusMessage += ` (${parseErrors.length} row${parseErrors.length === 1 ? "" : "s"} skipped.)`;
+  if (allSkipped.length > 0) statusMessage += ` (${allSkipped.length} row${allSkipped.length === 1 ? "" : "s"} skipped — see details.)`;
   saveStatus.textContent = statusMessage;
-  if (parseErrors.length > 0) alert("Some rows were skipped:\n\n" + parseErrors.join("\n"));
+  if (allSkipped.length > 0) alert("The following rows were skipped:\n\n" + allSkipped.join("\n"));
 });
 
 // ---------- CSV PARSER ----------
@@ -485,6 +504,22 @@ csvFileInput.addEventListener("change", async (event) => {
 //  - Blank cells: treated as null / not entered
 //  - Decimal values: fully supported (0.5, 1.5, 2.5 etc.)
 //  - Blank date_of_birth: allowed
+
+// Converts Excel scientific notation back to a plain string.
+// Examples:  "1.00E+11" → "100000000000"
+//            "6.38E+09" → "6380000000"
+//            "TN/12345" → "TN/12345"  (non-numeric strings are returned as-is)
+function convertScientificToString(value) {
+  // Only process if it looks like scientific notation (contains E+ or E-)
+  if (!/^-?[\d.]+[eE][+-]?\d+$/.test(value)) return value;
+  // parseFloat correctly handles scientific notation, then
+  // toLocaleString with maximumFractionDigits:0 removes decimals,
+  // and replace removes any locale-specific comma separators.
+  const num = parseFloat(value);
+  if (isNaN(num)) return value;
+  // Use toFixed to avoid any floating point rounding issues for large integers
+  return num.toFixed(0);
+}
 
 function parseCsv(text) {
   // Normalise line endings and remove blank lines
@@ -627,8 +662,18 @@ function parseCsv(text) {
       finalRow.full_name = rawRow.full_name.trim();
     }
     if ("department" in rawRow) finalRow.department = rawRow.department.trim() || null;
-    if ("pf_number" in rawRow) finalRow.pf_number = rawRow.pf_number.trim() || null;
-    if ("esi_number" in rawRow) finalRow.esi_number = rawRow.esi_number.trim() || null;
+    // Fix Excel scientific notation: "1.00E+11" → "100000000000"
+    // Excel converts long numeric PF/ESI numbers to scientific notation when
+    // saving as CSV. This detects that pattern and converts back to the full
+    // number string so it saves correctly in the database.
+    if ("pf_number" in rawRow) {
+      const pf = rawRow.pf_number.trim();
+      finalRow.pf_number = pf ? convertScientificToString(pf) : null;
+    }
+    if ("esi_number" in rawRow) {
+      const esi = rawRow.esi_number.trim();
+      finalRow.esi_number = esi ? convertScientificToString(esi) : null;
+    }
 
     numericColumns.forEach((col) => {
       if (col in numericValues) finalRow[col] = numericValues[col];
